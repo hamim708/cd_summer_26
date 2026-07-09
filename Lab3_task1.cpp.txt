@@ -1,0 +1,107 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+string operators[10] = {"+", "-", "*", "/", "<<", "<", ">", "=="};
+string punctuations[5] = {";", ",", "(", ")", "{"};
+string keywords[10] = {"cout", "cin", "int", "float", "double", "if", "else", "for", "while"};
+bool isInArray(string token, string arr[], int size) {
+    for(int j = 0; j < size; j++) {
+        if(token == arr[j]) {
+            return true;
+        }
+    }
+    return false;
+}
+string getTokenType(string token) {
+    if(token.empty()) {
+        return "UNKNOWN";
+    }
+
+    if(isInArray(token, keywords, 10)) {
+        return "KEYWORD";
+    }
+    if(isInArray(token, operators, 10)) {
+        return "OPERATOR";
+    }
+    if(isInArray(token, punctuations, 5)) {
+        return "PUNCTUATION";
+    }
+    bool isNumber = true;
+    bool hasDot = false;
+
+    for(char c : token) {
+        if(c == '.') {
+            hasDot = true;
+        }
+        else if(c < '0' || c > '9') {
+            isNumber = false;
+            break;
+        }
+    }
+
+    if(isNumber && !token.empty()) {
+        if(hasDot) {
+            return "FLOAT";
+        } else {
+            return "INTEGER";
+        }
+    }
+    char first = token[0];
+    if((first >= 'a' && first <= 'z') ||
+       (first >= 'A' && first <= 'Z') ||
+        first == '_') {
+        return "IDENTIFIER";
+    }
+
+    return "UNKNOWN";
+}
+void tokenize(string input) {
+    cout << "Input: " << input << endl << endl;
+    cout << "Tokens:" << endl;
+
+    int i = 0;
+    int n = input.length();
+
+    while(i < n) {++
+        while(i < n && (input[i] == ' ' || input[i] == '\t')) {
+            i++;
+        }
+        if(i >= n) break;
+
+        string token = "";
+        if(input[i] == '<' && i+1 < n && input[i+1] == '<') {
+            token = "<<";
+            i += 2;
+        }
+        else if(input[i] == '+' || input[i] == '-' || input[i] == '*' ||
+                input[i] == '/' || input[i] == '<' || input[i] == '>' ||
+                input[i] == ';' || input[i] == ',' || input[i] == '(' ||
+                input[i] == ')') {
+            token = input[i];
+            i++;
+        }
+        else {
+            while(i < n && input[i] != ' ' && input[i] != '\t' &&
+                  input[i] != '+' && input[i] != '-' && input[i] != '*' &&
+                  input[i] != '/' && input[i] != '<' && input[i] != '>' &&
+                  input[i] != ';' && input[i] != ',' && input[i] != '(' &&
+                  input[i] != ')') {
+                token += input[i];
+                i++;
+            }
+        }
+
+        if(!token.empty()) {
+            string type = getTokenType(token);
+            cout << token << " --> " << type << endl;
+        }
+    }
+
+    cout << "\nTokenization complete." << endl;
+}
+
+int main() {
+    string input = "cout << 20 + a * 60.5";
+    tokenize(input);
+}
